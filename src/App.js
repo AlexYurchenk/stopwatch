@@ -5,7 +5,7 @@ import { takeUntil, bufferTime, filter } from "rxjs/operators";
 
 import timeTransformation from "./services/timeTransformation";
 function App() {
-  const [time, setTime] = useState(3600);
+  const [time, setTime] = useState(0);
   const [state, setState] = useState(false);
 
   const stop = document.getElementById("stop");
