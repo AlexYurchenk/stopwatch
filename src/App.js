@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Counter from "./components/counter/counter";
 import { Observable, fromEvent } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { takeUntil, bufferTime, filter } from "rxjs/operators";
 
 import timeTransformation from "./services/timeTransformation";
 function App() {
@@ -14,6 +14,11 @@ function App() {
     if (state) {
       const stopClick = fromEvent(stop, "click");
       const waitClick = fromEvent(wait, "click");
+      const buffered = waitClick.pipe(
+        bufferTime(300),
+        filter((v) => v.length === 2)
+      );
+      buffered.subscribe((x) => x[0]);
 
       const timer$ = new Observable((observer) => {
         const interval = setInterval(() => {
@@ -27,7 +32,7 @@ function App() {
 
       timer$
         .pipe(takeUntil(stopClick))
-        .pipe(takeUntil(waitClick))
+        .pipe(takeUntil(buffered))
         .subscribe({
           next: () => {
             if (state === true) {
@@ -35,10 +40,6 @@ function App() {
             }
           },
         });
-      // const id = setInterval(() => {
-      //   setTime((c) => c + 1);
-      // }, 1000);
-      // return () => clearInterval(id);
     }
   }, [state, stop, wait]);
 
